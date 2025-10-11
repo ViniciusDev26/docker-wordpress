@@ -35,8 +35,8 @@ services:
       - db_data:/var/lib/mysql
 
   nginx:
-    image: nginx:latest
-    container_name: wordpress_nginx
+    image: nginx:1.19.0
+    container_name: nginx
     ports:
       - "80:80"
     depends_on:
