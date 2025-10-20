@@ -1,0 +1,22 @@
+FROM wordpress:5.4.2-php7.4-apache
+
+# Atualizar repositórios para usar o arquivo do Debian (Buster EOL)
+RUN sed -i 's|http://deb.debian.org/debian|http://archive.debian.org/debian|g' /etc/apt/sources.list \
+    && sed -i 's|http://security.debian.org/debian-security|http://archive.debian.org/debian-security|g' /etc/apt/sources.list \
+    && sed -i '/stretch-updates/d' /etc/apt/sources.list
+
+# Instalar dependências necessárias
+RUN apt-get update && apt-get install -y \
+    imagemagick \
+    less \
+    wget \
+    && rm -rf /var/lib/apt/lists/*
+
+# Instalar WP-CLI
+RUN wget https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar \
+    && chmod +x wp-cli.phar \
+    && mv wp-cli.phar /usr/local/bin/wp
+
+# Copiar script de inicialização
+COPY init-wordpress.sh /usr/local/bin/init-wordpress.sh
+RUN chmod +x /usr/local/bin/init-wordpress.sh
