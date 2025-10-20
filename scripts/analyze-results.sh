@@ -20,7 +20,7 @@ echo ""
 # Verificar se existem resultados
 if [ ! -d "$RESULTS_DIR" ] || [ -z "$(ls -A $RESULTS_DIR/*.json 2>/dev/null)" ]; then
     echo -e "${YELLOW}Nenhum resultado encontrado em ${RESULTS_DIR}/${NC}"
-    echo "Execute primeiro: ./run-load-tests.sh"
+    echo "Execute primeiro: ./scripts/run-load-tests.sh"
     exit 1
 fi
 

@@ -47,7 +47,7 @@ services:
     ports:
       - "8089:8089"
     volumes:
-      - ./locustfile.py:/home/locust/locustfile.py
+      - ./scripts/locustfile.py:/home/locust/locustfile.py
     command: -f /home/locust/locustfile.py --host=http://nginx
     depends_on:
       - nginx

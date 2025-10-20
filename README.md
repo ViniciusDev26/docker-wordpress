@@ -113,16 +113,17 @@ docker-wordpress/
 ├── docker-compose.yml          # Configuração dos containers
 ├── Dockerfile.wordpress        # Imagem customizada do WordPress
 ├── nginx.conf                  # Configuração do load balancer
-├── init-wordpress.sh          # Script de inicialização do WordPress
-├── locustfile.py              # Cenários de teste do Locust
-├── run-load-tests.sh          # Script principal de testes
-└── analyze-results.sh         # Script de análise de resultados
+└── scripts/                    # Diretório de scripts
+    ├── init-wordpress.sh       # Script de inicialização do WordPress
+    ├── locustfile.py           # Cenários de teste do Locust
+    ├── run-load-tests.sh       # Script principal de testes
+    └── analyze-results.sh      # Script de análise de resultados
 ```
 
 ### Passo 3: Dar Permissão aos Scripts
 
 ```bash
-chmod +x init-wordpress.sh run-load-tests.sh analyze-results.sh
+chmod +x scripts/*.sh
 ```
 
 ### Passo 4: Build das Imagens Docker
@@ -200,7 +201,7 @@ Você deverá ver o WordPress funcionando com os 3 posts criados.
 Execute todos os 24 testes automaticamente:
 
 ```bash
-./run-load-tests.sh
+./scripts/run-load-tests.sh
 ```
 
 **O que acontece:**
@@ -274,7 +275,7 @@ Depois acesse o Locust (<http://localhost:8089>) e configure manualmente.
 ### Gerar Relatório Resumido
 
 ```bash
-./analyze-results.sh
+./scripts/analyze-results.sh
 ```
 
 **Saída no terminal:**
@@ -355,20 +356,21 @@ docker-wordpress/
 ├── Dockerfile.wordpress        # Build da imagem customizada
 ├── nginx.conf                  # Configuração do load balancer
 │
-├── init-wordpress.sh          # Script de inicialização
-├── locustfile.py              # Cenários de teste do Locust
-├── run-load-tests.sh          # Automação dos testes
-├── analyze-results.sh         # Análise de resultados
+├── scripts/                    # Scripts de automação
+│   ├── init-wordpress.sh       # Script de inicialização
+│   ├── locustfile.py           # Cenários de teste do Locust
+│   ├── run-load-tests.sh       # Automação dos testes
+│   └── analyze-results.sh      # Análise de resultados
 │
-├── .gitignore                 # Ignora wp-content/ e results/
-├── README.md                  # Esta documentação
+├── .gitignore                  # Ignora wp-content/ e results/
+├── README.md                   # Esta documentação
 │
-├── wp-content/                # Conteúdo do WordPress (gerado)
-│   ├── uploads/               # Imagens dos posts
+├── wp-content/                 # Conteúdo do WordPress (gerado)
+│   ├── uploads/                # Imagens dos posts
 │   ├── themes/
 │   └── plugins/
 │
-└── results/                   # Resultados dos testes (gerado)
+└── results/                    # Resultados dos testes (gerado)
     ├── arch1_users10_*.json
     ├── arch1_users50_*.json
     └── summary_report.md
@@ -419,7 +421,7 @@ Exemplo com `WordPressUser`:
 
 ### Modificar Configurações dos Testes
 
-Edite `run-load-tests.sh`:
+Edite `scripts/run-load-tests.sh`:
 
 ```bash
 # Número de instâncias a testar
@@ -437,7 +439,7 @@ SPAWN_RATE=10
 
 ### Adicionar Novos Cenários de Teste
 
-Edite `locustfile.py`:
+Edite `scripts/locustfile.py`:
 
 ```python
 @task(2)
@@ -451,7 +453,7 @@ def new_test(self):
 
 ### Modificar Posts de Teste
 
-Edite `init-wordpress.sh` para alterar:
+Edite `scripts/init-wordpress.sh` para alterar:
 
 - Tamanho das imagens
 - Quantidade de texto
@@ -571,7 +573,7 @@ docker stats
 docker-compose up -d --scale wordpress=1
 
 # Reduzir carga de usuários
-# Editar USER_LOADS em run-load-tests.sh
+# Editar USER_LOADS em scripts/run-load-tests.sh
 
 # Aumentar recursos do Docker
 # Docker Desktop > Settings > Resources
