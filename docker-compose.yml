@@ -53,24 +53,5 @@ services:
       - nginx
       - wordpress
 
-  wp-init:
-    build:
-      context: .
-      dockerfile: Dockerfile.wordpress
-    container_name: wp-init
-    environment:
-      WORDPRESS_DB_HOST: db:3306
-      WORDPRESS_DB_USER: root
-      WORDPRESS_DB_PASSWORD: root
-      WORDPRESS_DB_NAME: wordpress
-    volumes:
-      - ./wp-content:/var/www/html
-    depends_on:
-      db:
-        condition: service_healthy
-      wordpress:
-        condition: service_started
-    command: /usr/local/bin/init-wordpress.sh
-
 volumes:
   db_data:

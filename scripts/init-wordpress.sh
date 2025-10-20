@@ -1,8 +1,15 @@
 #!/bin/bash
 # Script de inicialização do WordPress com posts de teste
 
+# Verifica se o WordPress já foi inicializado
+if wp core is-installed --allow-root 2>/dev/null; then
+  echo "⚠️  WordPress já está inicializado!"
+  echo "Para reinicializar, delete o banco de dados e rode novamente."
+  exit 0
+fi
+
 echo "Aguardando WordPress estar pronto..."
-sleep 30
+sleep 10
 
 echo "Instalando WordPress..."
 wp core install \
@@ -115,6 +122,3 @@ echo "1. /post-imagem-1mb/ - Post com imagem de 1MB"
 echo "2. /post-texto-400kb/ - Post com texto de 400KB"
 echo "3. /post-imagem-300kb/ - Post com imagem de 300KB"
 echo "=========================================="
-
-# Manter o container rodando
-tail -f /dev/null
