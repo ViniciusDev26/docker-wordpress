@@ -49,6 +49,7 @@ Antes de começar, certifique-se de ter instalado:
   ```
 
 - **Bash** (disponível por padrão no macOS e Linux)
+  - Windows: Use **PowerShell** (scripts `.ps1` incluídos)
 
 - **curl** (para verificação de serviços e API do Locust)
 
@@ -122,8 +123,19 @@ docker-wordpress/
 
 ### Passo 3: Dar Permissão aos Scripts
 
+**Linux/macOS:**
+
 ```bash
 chmod +x scripts/*.sh
+```
+
+**Windows:**
+
+No Windows, os scripts PowerShell (`.ps1`) não precisam de permissões especiais. Porém, você pode precisar habilitar a execução de scripts:
+
+```powershell
+# Execute no PowerShell como Administrador (apenas uma vez)
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 ```
 
 ### Passo 4: Build das Imagens Docker
@@ -200,8 +212,16 @@ Você deverá ver o WordPress funcionando com os 3 posts criados.
 
 Execute todos os 24 testes automaticamente:
 
+**Linux/macOS:**
+
 ```bash
 ./scripts/run-load-tests.sh
+```
+
+**Windows (PowerShell):**
+
+```powershell
+.\scripts\run-load-tests.ps1
 ```
 
 **O que acontece:**
@@ -274,8 +294,16 @@ Depois acesse o Locust (<http://localhost:8089>) e configure manualmente.
 
 ### Gerar Relatório Resumido
 
+**Linux/macOS:**
+
 ```bash
 ./scripts/analyze-results.sh
+```
+
+**Windows (PowerShell):**
+
+```powershell
+.\scripts\analyze-results.ps1
 ```
 
 **Saída no terminal:**
@@ -359,8 +387,10 @@ docker-wordpress/
 ├── scripts/                    # Scripts de automação
 │   ├── init-wordpress.sh       # Script de inicialização
 │   ├── locustfile.py           # Cenários de teste do Locust
-│   ├── run-load-tests.sh       # Automação dos testes
-│   └── analyze-results.sh      # Análise de resultados
+│   ├── run-load-tests.sh       # Automação dos testes (Linux/macOS)
+│   ├── run-load-tests.ps1      # Automação dos testes (Windows)
+│   ├── analyze-results.sh      # Análise de resultados (Linux/macOS)
+│   └── analyze-results.ps1     # Análise de resultados (Windows)
 │
 ├── .gitignore                  # Ignora wp-content/ e results/
 ├── README.md                   # Esta documentação
@@ -421,7 +451,7 @@ Exemplo com `WordPressUser`:
 
 ### Modificar Configurações dos Testes
 
-Edite `scripts/run-load-tests.sh`:
+Edite `scripts/run-load-tests.sh` (Linux/macOS) ou `scripts/run-load-tests.ps1` (Windows):
 
 ```bash
 # Número de instâncias a testar
