@@ -23,21 +23,29 @@ wp core install \
 
 echo "WordPress instalado com sucesso!"
 
-# Gerar texto grande (400KB)
-echo "Gerando conteúdo de texto grande (400KB)..."
-LARGE_TEXT=""
-for i in {1..5000}; do
-  LARGE_TEXT="${LARGE_TEXT}Este é um parágrafo de teste número ${i}. Lorem ipsum dolor sit amet, consectetur adipiscing elit. "
-done
-
-# Criar post com texto de 400KB
+# Criar post com texto de 400KB usando SQL direto para evitar limite de argumentos
 echo "Criando post com texto de 400KB..."
-wp post create \
+POST_TEXT_ID=$(wp post create \
   --post_title="Post com Texto Grande (400KB)" \
-  --post_content="$LARGE_TEXT" \
+  --post_content="Conteúdo temporário" \
   --post_status=publish \
   --post_name="post-texto-400kb" \
-  --allow-root
+  --porcelain \
+  --allow-root)
+
+# Gerar texto grande (400KB) e inserir no banco
+echo "Gerando conteúdo de texto grande (400KB)..."
+CONTENT=""
+for i in {1..5000}; do
+  CONTENT="${CONTENT}<p>Este é um parágrafo de teste número ${i}. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.</p>"
+done
+
+# Atualizar via MySQL diretamente no banco
+echo "Adicionando conteúdo ao post..."
+ESCAPED_CONTENT=$(echo "$CONTENT" | sed "s/'/\\\\'/g")
+mysql -h db -u root -proot wordpress <<EOF
+UPDATE wp_posts SET post_content = '$ESCAPED_CONTENT' WHERE ID = ${POST_TEXT_ID};
+EOF
 
 # Criar post para imagem de 1MB
 echo "Criando post com imagem de 1MB..."
@@ -118,7 +126,7 @@ echo "Usuário: admin"
 echo "Senha: admin123"
 echo "=========================================="
 echo "Posts criados:"
-echo "1. /post-imagem-1mb/ - Post com imagem de 1MB"
-echo "2. /post-texto-400kb/ - Post com texto de 400KB"
+echo "1. /post-texto-400kb/ - Post com texto de 400KB"
+echo "2. /post-imagem-1mb/ - Post com imagem de 1MB"
 echo "3. /post-imagem-300kb/ - Post com imagem de 300KB"
 echo "=========================================="
