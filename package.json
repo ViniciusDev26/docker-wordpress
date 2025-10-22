@@ -1,0 +1,19 @@
+{
+  "name": "docker-wordpress",
+  "module": "index.ts",
+  "type": "module",
+  "scripts": {
+    "remove:containers": "docker-compose down -v",
+    "up:containers": "docker-compose up -d --build",
+    "init": "docker-compose exec wordpress bun /usr/local/bin/init-wordpress.ts",
+    "test:load": "bun run scripts/run-load-tests.ts",
+    "analyze": "bun run scripts/analyze-results.ts",
+    "report": "bun run scripts/generate-report.ts"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  }
+}

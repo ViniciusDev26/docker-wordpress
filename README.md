@@ -19,10 +19,11 @@ Este projeto configura um ambiente WordPress com Docker e realiza testes de carg
 
 Este projeto automatiza a execução de testes de carga no WordPress, variando:
 
-- **Arquitetura**: 1, 2, 3 ou 4 instâncias do WordPress (escalabilidade horizontal)
-- **Carga de usuários**: 10, 50, 100, 500, 1000 ou 100000 usuários simultâneos
-- **Duração**: Cada teste executa por 10 segundos
-- **Total de testes**: 24 combinações (4 arquiteturas × 6 cargas)
+- **Arquitetura**: 1, 2 e 3 instâncias do WordPress (escalabilidade horizontal)
+- **Carga de usuários**: 10, 100 e 1000 usuários simultâneos (crescente)
+- **Duração**: Cada teste executa por 30 segundos
+- **Total de testes**: 9 combinações (3 arquiteturas × 3 cargas)
+- **Visualização**: Gráficos interativos com métricas de desempenho
 
 ### Posts de Teste
 
@@ -48,21 +49,21 @@ Antes de começar, certifique-se de ter instalado:
   docker-compose --version
   ```
 
-- **Bash** (disponível por padrão no macOS e Linux)
-  - Windows: Use **PowerShell** (scripts `.ps1` incluídos)
+- **Bun** (runtime JavaScript/TypeScript)
+
+  ```bash
+  bun --version
+  ```
+
+  Para instalar o Bun:
+  ```bash
+  curl -fsSL https://bun.sh/install | bash
+  ```
 
 - **curl** (para verificação de serviços e API do Locust)
 
   ```bash
   curl --version
-  ```
-
-- **Python 3** ou **jq** (opcional, para análise de resultados)
-
-  ```bash
-  python3 --version
-  # ou
-  jq --version
   ```
 
 ### Requisitos de Sistema
@@ -112,30 +113,20 @@ Certifique-se de que os seguintes arquivos existem:
 ```text
 docker-wordpress/
 ├── docker-compose.yml          # Configuração dos containers
-├── Dockerfile.wordpress        # Imagem customizada do WordPress
+├── Dockerfile.wordpress        # Imagem customizada do WordPress (com Bun)
 ├── nginx.conf                  # Configuração do load balancer
+├── package.json                # Dependências e scripts NPM
 └── scripts/                    # Diretório de scripts
-    ├── init-wordpress.sh       # Script de inicialização do WordPress
+    ├── init-wordpress.ts       # Script de inicialização (Bun/TypeScript)
     ├── locustfile.py           # Cenários de teste do Locust
-    ├── run-load-tests.sh       # Script principal de testes
-    └── analyze-results.sh      # Script de análise de resultados
+    ├── run-load-tests.ts       # Script principal de testes (Bun/TypeScript)
+    └── analyze-results.ts      # Script de análise (Bun/TypeScript)
 ```
 
-### Passo 3: Dar Permissão aos Scripts
-
-**Linux/macOS:**
+### Passo 3: Instalar Dependências
 
 ```bash
-chmod +x scripts/*.sh
-```
-
-**Windows:**
-
-No Windows, os scripts PowerShell (`.ps1`) não precisam de permissões especiais. Porém, você pode precisar habilitar a execução de scripts:
-
-```powershell
-# Execute no PowerShell como Administrador (apenas uma vez)
-Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+bun install
 ```
 
 ### Passo 4: Build das Imagens Docker
@@ -151,6 +142,7 @@ docker-compose build
 - Download da imagem base do WordPress
 - Instalação do ImageMagick (para gerar imagens)
 - Instalação do WP-CLI (para automatizar configurações)
+- **Instalação do Bun** (runtime TypeScript/JavaScript)
 - Build da imagem customizada
 
 ### Passo 5: Iniciar o Ambiente
@@ -165,14 +157,13 @@ docker-compose up -d
 - `db` - Banco de dados MySQL
 - `nginx` - Load balancer
 - `locust` - Gerador de carga
-- `wp-init` - Inicializador (executa uma vez e para)
 
-### Passo 6: Aguardar Inicialização
+### Passo 6: Inicializar WordPress com Posts de Teste
 
-Acompanhe os logs do container de inicialização:
+Execute o script de inicialização dentro do container WordPress:
 
 ```bash
-docker-compose logs -f wp-init
+docker-compose exec wordpress bun /usr/local/bin/init-wordpress.ts
 ```
 
 **Aguarde até ver:**
@@ -192,8 +183,6 @@ Posts criados:
 ========================================
 ```
 
-Pressione `Ctrl+C` para sair dos logs.
-
 ### Passo 7: Verificar o WordPress
 
 Acesse no navegador: <http://localhost>
@@ -210,18 +199,16 @@ Você deverá ver o WordPress funcionando com os 3 posts criados.
 
 ### Opção 1: Testes Automatizados (Recomendado)
 
-Execute todos os 24 testes automaticamente:
-
-**Linux/macOS:**
+Execute todos os 24 testes automaticamente usando Bun:
 
 ```bash
-./scripts/run-load-tests.sh
+bun run test:load
 ```
 
-**Windows (PowerShell):**
+Ou diretamente:
 
-```powershell
-.\scripts\run-load-tests.ps1
+```bash
+bun scripts/run-load-tests.ts
 ```
 
 **O que acontece:**
@@ -294,16 +281,16 @@ Depois acesse o Locust (<http://localhost:8089>) e configure manualmente.
 
 ### Gerar Relatório Resumido
 
-**Linux/macOS:**
+Execute o script de análise usando Bun:
 
 ```bash
-./scripts/analyze-results.sh
+bun run analyze
 ```
 
-**Windows (PowerShell):**
+Ou diretamente:
 
-```powershell
-.\scripts\analyze-results.ps1
+```bash
+bun scripts/analyze-results.ts
 ```
 
 **Saída no terminal:**
@@ -325,13 +312,39 @@ arch1_users50...     | 1          | 50              | 120.45          | 2.34%
 Relatório salvo em: results/summary_report.md
 ```
 
-### Visualizar Relatório
+### Gerar Gráficos Interativos
+
+Após executar os testes, gere um relatório HTML com gráficos:
+
+```bash
+bun run report
+```
+
+Isso criará um arquivo `results/report.html` com gráficos interativos mostrando:
+
+**Gráficos por Número de Usuários (eixo X = usuários):**
+- Requisições por Segundo vs Usuários
+- Tempo de Resposta Médio vs Usuários
+- Taxa de Falhas vs Usuários
+
+**Gráficos por Número de Instâncias (eixo X = instâncias):**
+- Requisições por Segundo vs Instâncias
+- Tempo de Resposta Médio vs Instâncias
+- Taxa de Falhas vs Instâncias
+
+Abra o relatório no navegador:
+
+```bash
+open results/report.html
+# ou
+xdg-open results/report.html
+```
+
+### Visualizar Relatório Markdown
 
 ```bash
 cat results/summary_report.md
 ```
-
-Ou abra o arquivo no seu editor favorito para uma visualização mais bonita.
 
 ### Estrutura do Relatório
 
@@ -385,12 +398,10 @@ docker-wordpress/
 ├── nginx.conf                  # Configuração do load balancer
 │
 ├── scripts/                    # Scripts de automação
-│   ├── init-wordpress.sh       # Script de inicialização
+│   ├── init-wordpress.ts       # Script de inicialização (Bun/TypeScript)
 │   ├── locustfile.py           # Cenários de teste do Locust
-│   ├── run-load-tests.sh       # Automação dos testes (Linux/macOS)
-│   ├── run-load-tests.ps1      # Automação dos testes (Windows)
-│   ├── analyze-results.sh      # Análise de resultados (Linux/macOS)
-│   └── analyze-results.ps1     # Análise de resultados (Windows)
+│   ├── run-load-tests.ts       # Automação dos testes (Bun/TypeScript)
+│   └── analyze-results.ts      # Análise de resultados (Bun/TypeScript)
 │
 ├── .gitignore                  # Ignora wp-content/ e results/
 ├── README.md                   # Esta documentação
@@ -451,21 +462,18 @@ Exemplo com `WordPressUser`:
 
 ### Modificar Configurações dos Testes
 
-Edite `scripts/run-load-tests.sh` (Linux/macOS) ou `scripts/run-load-tests.ps1` (Windows):
+Edite `scripts/run-load-tests.ts`:
 
-```bash
-# Número de instâncias a testar
-ARCHITECTURES=(1 2 3 4)
-
-# Cargas de usuários
-USER_LOADS=(10 50 100 500 1000 100000)
-
-# Duração de cada teste (segundos)
-TEST_DURATION=10
-
-# Taxa de spawn (usuários/segundo)
-SPAWN_RATE=10
+```typescript
+const config = {
+  architectures: [1, 2, 3, 4], // Número de instâncias do WordPress
+  userLoads: [10, 100, 1000, 10000, 100000, 300000], // Número de usuários
+  testDuration: 30, // Duração de cada teste em segundos
+  spawnRate: 10, // Taxa de spawn (usuários por segundo)
+  resultsDir: './results',
+};
 ```
+
 
 ### Adicionar Novos Cenários de Teste
 
