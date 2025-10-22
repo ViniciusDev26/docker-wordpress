@@ -17,8 +17,8 @@ const colors = {
 const config = {
   architectures: [1, 2, 3], // Número de instâncias do WordPress (mínimo 3)
   userLoads: [10, 100, 1000], // Número de usuários simultâneos (mínimo 3 crescentes)
-  testDuration: 20, // Duração de cada teste em segundos (reduzido para otimizar tempo)
-  spawnRate: 50, // Taxa de spawn (usuários por segundo) - mais rápido
+  testDuration: 30, // Duração de cada teste em segundos (reduzido para otimizar tempo)
+  spawnRate: 100, // Taxa de spawn (usuários por segundo) - mais rápido
   waitBetweenTests: 3, // Tempo de espera entre testes (segundos)
   resultsDir: './results',
 };
