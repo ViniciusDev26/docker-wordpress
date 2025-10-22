@@ -113,18 +113,9 @@ for (const file of files) {
       const instances = parseInt(match[1]);
       const users = parseInt(match[2]);
 
-      // Extrair métricas do JSON
-      let totalRps = 0;
-      let failRatio = 0;
-
-      if (data.stats && data.stats.length > 0) {
-        // Pegar a primeira entrada (agregado de todas as requisições)
-        const aggregatedStats = data.stats[0];
-        if (aggregatedStats) {
-          totalRps = aggregatedStats.total_rps || 0;
-          failRatio = aggregatedStats.fail_ratio || 0;
-        }
-      }
+      // Extrair métricas do JSON (do nível raiz que contém os valores agregados)
+      const totalRps = data.total_rps || 0;
+      const failRatio = data.fail_ratio || 0;
 
       const failPercentage = failRatio * 100;
 
