@@ -27,7 +27,7 @@ const results: TestResult[] = [];
 
 for (const file of files) {
   const match = file.match(/arch(\d+)_users(\d+)/);
-  if (!match) continue;
+  if (!match || !match[1] || !match[2]) continue;
 
   const instances = parseInt(match[1]);
   const users = parseInt(match[2]);
@@ -37,14 +37,16 @@ for (const file of files) {
 
   if (data.stats && data.stats.length > 0) {
     const stats = data.stats[0];
-    results.push({
-      instances,
-      users,
-      rps: stats.total_rps || 0,
-      avgResponseTime: stats.avg_response_time || 0,
-      medianResponseTime: stats.median_response_time || 0,
-      failRatio: (stats.fail_ratio || 0) * 100,
-    });
+    if (stats) {
+      results.push({
+        instances,
+        users,
+        rps: stats.total_rps || 0,
+        avgResponseTime: stats.avg_response_time || 0,
+        medianResponseTime: stats.median_response_time || 0,
+        failRatio: (stats.fail_ratio || 0) * 100,
+      });
+    }
   }
 }
 
@@ -62,10 +64,10 @@ const byInstances: Record<number, TestResult[]> = {};
 
 for (const r of results) {
   if (!byUsers[r.users]) byUsers[r.users] = [];
-  byUsers[r.users].push(r);
+  byUsers[r.users]?.push(r);
 
   if (!byInstances[r.instances]) byInstances[r.instances] = [];
-  byInstances[r.instances].push(r);
+  byInstances[r.instances]?.push(r);
 }
 
 // Gerar HTML com Chart.js

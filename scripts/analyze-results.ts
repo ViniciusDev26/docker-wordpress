@@ -109,7 +109,7 @@ for (const file of files) {
     // Extrair informações do nome do arquivo
     const match = file.match(/arch(\d+)_users(\d+)/);
 
-    if (match) {
+    if (match && match[1] && match[2]) {
       const instances = parseInt(match[1]);
       const users = parseInt(match[2]);
 
@@ -120,8 +120,10 @@ for (const file of files) {
       if (data.stats && data.stats.length > 0) {
         // Pegar a primeira entrada (agregado de todas as requisições)
         const aggregatedStats = data.stats[0];
-        totalRps = aggregatedStats.total_rps || 0;
-        failRatio = aggregatedStats.fail_ratio || 0;
+        if (aggregatedStats) {
+          totalRps = aggregatedStats.total_rps || 0;
+          failRatio = aggregatedStats.fail_ratio || 0;
+        }
       }
 
       const failPercentage = failRatio * 100;
